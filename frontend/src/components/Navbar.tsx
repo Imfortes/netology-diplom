@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <nav style={{ padding: '10px', borderBottom: '1px solid #ccc', marginBottom: '20px' }}>
@@ -15,7 +17,10 @@ export const Navbar: React.FC = () => {
             <Link to="/admin" style={{ marginRight: '15px' }}>Админ панель</Link>
           )}
           <span style={{ marginRight: '15px' }}>Привет, {user.username}!</span>
-          <button onClick={logout}>Выйти</button>
+          <button onClick={() => {
+              logout();
+              navigate('/');
+            }}>Выйти</button>
         </>
       ) : (
         <>

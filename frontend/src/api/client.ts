@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Используем переменную окружения для URL API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const apiClient = axios.create({
@@ -11,15 +10,20 @@ const apiClient = axios.create({
   },
 });
 
-// Интерцептор для обработки ошибок
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.error('Не авторизован');
+// Добавляем CSRF токен для POST запросов
+apiClient.interceptors.request.use(async (config) => {
+  if (config.method === 'post' || config.method === 'delete') {
+    // Получаем CSRF токен из cookies
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+
+    if (csrfToken) {
+      config.headers['X-CSRFToken'] = csrfToken;
     }
-    return Promise.reject(error);
   }
-);
+  return config;
+});
 
 export default apiClient;

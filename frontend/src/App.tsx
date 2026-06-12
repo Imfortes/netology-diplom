@@ -5,6 +5,7 @@ import { LoginForm } from './components/LoginForm';
 import { RegisterForm } from './components/RegisterForm';
 import { HomePage } from './pages/HomePage';
 import { DashboardPage } from './pages/DashboardPage';
+import { FileManagerPage } from './pages/FileManagerPage';
 import { AdminPage } from './pages/AdminPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({
@@ -25,11 +26,15 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
+
+      {/* Страница для всех авторизованных пользователей - файловый менеджер */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
-          <DashboardPage />
+          <FileManagerPage />
         </ProtectedRoute>
       } />
+
+      {/* Админ панель - только для админов */}
       <Route path="/admin" element={
         <ProtectedRoute adminOnly>
           <AdminPage />

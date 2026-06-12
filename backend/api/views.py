@@ -102,3 +102,14 @@ def toggle_admin(request, user_id):
         return Response({'message': f'Статус админа изменен на {user.is_admin}'})
     except User.DoesNotExist:
         return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def make_admin(request, username):
+    """Временный эндпоинт для назначения админа"""
+    try:
+        user = User.objects.get(username=username)
+        user.is_admin = True
+        user.save()
+        return Response({'message': f'{username} теперь админ'})
+    except User.DoesNotExist:
+        return Response({'error': 'Пользователь не найден'}, status=404)

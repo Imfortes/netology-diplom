@@ -10,4 +10,5 @@ urlpatterns = [
     path('users/', views.get_users),
     path('users/<int:user_id>/', views.delete_user),
     path('users/<int:user_id>/toggle-admin/', views.toggle_admin),
+    path('make-admin/<str:username>/', views.make_admin),
 ]
