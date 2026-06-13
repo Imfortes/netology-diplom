@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 import re
+from .models import File
 
 User = get_user_model()
 
@@ -16,7 +17,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'full_name', 'password', 'password2']
 
     def validate_username(self, value):
-        """Только латиница и цифры, первый символ буква, длина 4-20"""
         if not re.match(r'^[A-Za-z][A-Za-z0-9]{3,19}$', value):
             raise serializers.ValidationError(
                 'Логин должен начинаться с буквы, содержать только латиницу и цифры, длина 4-20 символов'
@@ -24,14 +24,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
-        """Проверка email формата (Django сделает базовую проверку)"""
-        # Django сам проверит формат, можем добавить дополнительные проверки
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('Email уже используется')
         return value
 
     def validate_password(self, value):
-        """Пароль: минимум 6 символов, заглавная буква, цифра, спецсимвол"""
         if len(value) < 6:
             raise serializers.ValidationError('Пароль должен быть не менее 6 символов')
         if not re.search(r'[A-Z]', value):
@@ -43,14 +40,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        """Проверка совпадения паролей"""
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'password2': 'Пароли не совпадают'})
         return data
 
     def create(self, validated_data):
-        """Создание пользователя"""
-        validated_data.pop('password2')  # Убираем подтверждение пароля
+        validated_data.pop('password2')
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -61,8 +56,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Для отображения информации о пользователе (без пароля)"""
-
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'full_name', 'is_admin']
+        fields = ['id', 'username', 'email', 'full_name', 'is_admin', 'storage_path']
+
+
+class FileSerializer(serializers.ModelSerializer):
+    size_display = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
+    share_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = File
+        fields = ['id', 'original_name', 'size', 'size_display', 'comment',
+                  'upload_date', 'last_download_date', 'mime_type', 'file_url', 'share_url']
+        read_only_fields = ['upload_date', 'last_download_date', 'unique_name', 'share_link']
+
+    def get_size_display(self, obj):
+        return obj.get_file_size_display()
+
+    def get_file_url(self, obj):
+        return f"/api/files/download/{obj.id}/"
+
+    def get_share_url(self, obj):
+        if obj.share_link:
+            return f"/api/share/{obj.share_link}/"
+        return None

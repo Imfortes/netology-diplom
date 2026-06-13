@@ -12,8 +12,7 @@ const apiClient = axios.create({
 
 // Добавляем CSRF токен для POST запросов
 apiClient.interceptors.request.use(async (config) => {
-  if (config.method === 'post' || config.method === 'delete') {
-    // Получаем CSRF токен из cookies
+  if (config.method === 'post' || config.method === 'delete' || config.method === 'put') {
     const csrfToken = document.cookie
       .split('; ')
       .find(row => row.startsWith('csrftoken='))
