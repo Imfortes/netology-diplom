@@ -4,9 +4,8 @@ import { Navbar } from './components/Navbar';
 import { LoginForm } from './components/LoginForm';
 import { RegisterForm } from './components/RegisterForm';
 import { HomePage } from './pages/HomePage';
-import { DashboardPage } from './pages/DashboardPage';
 import { FileManagerPage } from './pages/FileManagerPage';
-import { AdminPage } from './pages/AdminPage';
+import { AdminPage } from './pages/admin/AdminPage.tsx';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({
   children,
@@ -49,7 +48,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Navbar />
-        <div style={{ padding: '20px' }}>
+        <div>
           <AppRoutes />
         </div>
       </AuthProvider>

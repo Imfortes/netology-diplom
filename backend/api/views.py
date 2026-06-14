@@ -146,33 +146,88 @@ def get_files(request):
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def upload_file(request):
-    """Загрузка файла"""
+    """Загрузка файла с проверкой лимита"""
     file_obj = request.FILES.get('file')
     if not file_obj:
         return Response({'error': 'Файл не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Получаем актуального пользователя из БД
+    user = User.objects.get(id=request.user.id)
+
+    # Проверяем лимит хранилища
+    file_size = file_obj.size
+    free_space = user.storage_limit - user.storage_used
+
+    if file_size > free_space:
+        free_space_gb = free_space / (1024 * 1024 * 1024)
+        return Response({
+            'error': f'Недостаточно места. Свободно: {free_space_gb:.2f} GB. Нужно: {file_size / (1024 * 1024 * 1024):.2f} GB'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     comment = request.data.get('comment', '')
+
+    # Создаем директорию пользователя
+    user_dir = os.path.join(settings.MEDIA_ROOT, f"user_storage/user_{user.id}")
+    os.makedirs(user_dir, exist_ok=True)
+
+    # Генерируем уникальное имя файла
+    unique_name = f"{uuid.uuid4().hex}_{file_obj.name}"
+    file_path = os.path.join(user_dir, unique_name)
+    relative_path = f"user_storage/user_{user.id}/{unique_name}"
+
+    # Сохраняем файл на диск
+    with open(file_path, 'wb+') as destination:
+        for chunk in file_obj.chunks():
+            destination.write(chunk)
+
+    # Обновляем использованное место пользователя
+    user.storage_used += file_size
+    user.save()
+
+    # Создаем запись в БД
+    file_record = File(
+        user=user,
+        original_name=file_obj.name,
+        unique_name=unique_name,
+        size=file_size,
+        comment=comment,
+        file_path=relative_path,
+        mime_type=file_obj.content_type
+    )
+    file_record.save()
+
+    serializer = FileSerializer(file_record)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # Создаем директорию пользователя
+    user_dir = os.path.join(settings.MEDIA_ROOT, f"user_storage/user_{request.user.id}")
+    os.makedirs(user_dir, exist_ok=True)
+
+    # Генерируем уникальное имя файла
+    unique_name = f"{uuid.uuid4().hex}_{file_obj.name}"
+    file_path = os.path.join(user_dir, unique_name)
+
+    # Сохраняем файл на диск
+    with open(file_path, 'wb+') as destination:
+        for chunk in file_obj.chunks():
+            destination.write(chunk)
+
+    # Обновляем использованное место пользователя
+    request.user.storage_used += file_obj.size
+    request.user.save()
 
     # Создаем запись в БД
     file_record = File(
         user=request.user,
         original_name=file_obj.name,
-        unique_name=f"{uuid.uuid4().hex}_{file_obj.name}",
+        unique_name=unique_name,
         size=file_obj.size,
         comment=comment,
-        file_path=f"user_storage/user_{request.user.id}/{file_obj.name}",
+        file_path=f"user_storage/user_{request.user.id}/{unique_name}",
         mime_type=file_obj.content_type
     )
-
-    # Сохраняем файл на диск
-    save_path = os.path.join(settings.MEDIA_ROOT, f"user_storage/user_{request.user.id}", file_obj.name)
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-    with open(save_path, 'wb+') as destination:
-        for chunk in file_obj.chunks():
-            destination.write(chunk)
-
     file_record.save()
+
     serializer = FileSerializer(file_record)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -187,6 +242,16 @@ def delete_file(request, file_id):
         if not request.user.is_admin and file_record.user != request.user:
             return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
 
+        # Получаем пользователя
+        user = file_record.user
+
+        # Уменьшаем использованное место
+        user.storage_used -= file_record.size
+        if user.storage_used < 0:
+            user.storage_used = 0
+        user.save()
+
+        # Удаляем физический файл с диска
         file_path = os.path.join(settings.MEDIA_ROOT, file_record.file_path)
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -300,3 +365,74 @@ def update_comment(request, file_id):
         return Response(serializer.data)
     except File.DoesNotExist:
         return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_storage_limit(request, user_id):
+    """Обновление лимита хранилища пользователя (только для админа)"""
+    if not request.user.is_admin:
+        return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user = User.objects.get(id=user_id)
+        new_limit_gb = request.data.get('storage_limit_gb')
+
+        if new_limit_gb is None:
+            return Response({'error': 'Не указан новый лимит'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Конвертируем GB в байты
+        new_limit_bytes = int(new_limit_gb) * 1073741824
+
+        if new_limit_bytes < user.storage_used:
+            return Response({
+                'error': f'Новый лимит ({new_limit_gb} GB) меньше уже использованного места ({user.storage_used_display})'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        user.storage_limit = new_limit_bytes
+        user.save()
+
+        return Response({
+            'message': f'Лимит для {user.username} изменен на {new_limit_gb} GB',
+            'user': UserSerializer(user).data
+        })
+    except User.DoesNotExist:
+        return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_storage_info(request):
+    """Получить информацию о хранилище текущего пользователя"""
+    user = User.objects.get(id=request.user.id)
+    return Response({
+        'storage_limit': user.storage_limit,
+        'storage_used': user.storage_used,
+        'storage_limit_display': UserSerializer().format_bytes(user.storage_limit),
+        'storage_used_display': UserSerializer().format_bytes(user.storage_used),
+        'storage_free': user.storage_limit - user.storage_used,
+        'storage_free_display': UserSerializer().format_bytes(user.storage_limit - user.storage_used),
+        'storage_percent': round((user.storage_used / user.storage_limit) * 100, 2) if user.storage_limit > 0 else 0
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_storage_info_for_user(request, user_id):
+    """Получить информацию о хранилище конкретного пользователя (только для админа)"""
+    if not request.user.is_admin:
+        return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user = User.objects.get(id=user_id)
+        serializer = UserSerializer(user)
+        return Response({
+            'storage_limit': user.storage_limit,
+            'storage_used': user.storage_used,
+            'storage_limit_display': serializer.get_storage_limit_display(user),
+            'storage_used_display': serializer.get_storage_used_display(user),
+            'storage_percent': serializer.get_storage_percent(user),
+        })
+    except User.DoesNotExist:
+        return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)

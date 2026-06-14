@@ -13,6 +13,10 @@ urlpatterns = [
     path('users/', views.get_users),
     path('users/<int:user_id>/', views.delete_user),
     path('users/<int:user_id>/toggle-admin/', views.toggle_admin),
+    path('users/<int:user_id>/storage-limit/', views.update_storage_limit),
+
+    path('storage/info/', views.get_storage_info),
+    path('storage/info/<int:user_id>/', views.get_storage_info_for_user),
 
     path('make-admin/<str:username>/', views.make_admin),
 

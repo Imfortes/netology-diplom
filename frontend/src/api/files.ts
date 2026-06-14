@@ -60,3 +60,8 @@ export const getDownloadUrl = (fileId: number): string => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
   return `${backendUrl}/api/files/${fileId}/download/`;
 };
+
+export const getStorageInfo = async (): Promise<any> => {
+  const response = await apiClient.get('/storage/info/');
+  return response.data;
+};

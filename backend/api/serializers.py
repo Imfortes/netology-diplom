@@ -56,9 +56,37 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    storage_limit_display = serializers.SerializerMethodField()
+    storage_used_display = serializers.SerializerMethodField()
+    storage_percent = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'full_name', 'is_admin', 'storage_path']
+        fields = ['id', 'username', 'email', 'full_name', 'is_admin', 'storage_path',
+                  'storage_limit', 'storage_used', 'storage_limit_display',
+                  'storage_used_display', 'storage_percent']
+
+    def get_storage_limit_display(self, obj):
+        return self.format_bytes(obj.storage_limit)
+
+    def get_storage_used_display(self, obj):
+        return self.format_bytes(obj.storage_used)
+
+    def get_storage_percent(self, obj):
+        if obj.storage_limit == 0:
+            return 0
+        return round((obj.storage_used / obj.storage_limit) * 100, 2)
+
+    def format_bytes(self, bytes_val):
+        if bytes_val == 0:
+            return '0 Bytes'
+        k = 1024
+        sizes = ['Bytes', 'KB', 'MB', 'GB']
+        i = 0
+        while bytes_val >= k and i < len(sizes) - 1:
+            bytes_val /= k
+            i += 1
+        return f"{bytes_val:.2f} {sizes[i]}"
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -73,10 +101,20 @@ class FileSerializer(serializers.ModelSerializer):
         read_only_fields = ['upload_date', 'last_download_date', 'unique_name', 'share_link']
 
     def get_size_display(self, obj):
-        return obj.get_file_size_display()
+        """Форматирование размера файла"""
+        size = obj.size
+        if size == 0:
+            return '0 Bytes'
+        k = 1024
+        sizes = ['Bytes', 'KB', 'MB', 'GB']
+        i = 0
+        while size >= k and i < len(sizes) - 1:
+            size /= k
+            i += 1
+        return f"{size:.2f} {sizes[i]}"
 
     def get_file_url(self, obj):
-        return f"/api/files/download/{obj.id}/"
+        return f"/api/files/{obj.id}/download/"
 
     def get_share_url(self, obj):
         if obj.share_link:

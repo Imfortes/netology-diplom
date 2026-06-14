@@ -1,182 +1,124 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 
 export const HomePage: React.FC = () => {
   return (
-    <div>
+    <>
       {/* Hero секция */}
-      <div style={{
-        textAlign: 'center',
-        padding: '80px 20px',
+      <div className="bg-gradient-primary text-white text-center py-5 mb-5" style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        borderRadius: '20px',
-        marginBottom: '60px'
       }}>
-        <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>
-          ☁️ Облако Fortes
-        </h1>
-        <p style={{ fontSize: '20px', marginBottom: '30px', maxWidth: '600px', margin: '0 auto 30px' }}>
-          Надежное пространство для ваших файлов
-        </p>
-        <p style={{ marginBottom: '40px', opacity: 0.9 }}>
-          Сохраняйте в Облаке ценные файлы: фото, видео и документы.
-          Оно надёжно хранит их и делает доступными на любом вашем устройстве
-        </p>
-        <div>
-          <Link to="/register">
-            <button style={{
-              backgroundColor: 'white',
-              color: '#667eea',
-              border: 'none',
-              padding: '12px 30px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              marginRight: '15px',
-              fontWeight: 'bold'
-            }}>
-              Создать облако
-            </button>
-          </Link>
-          <Link to="/login">
-            <button style={{
-              backgroundColor: 'transparent',
-              color: 'white',
-              border: '2px solid white',
-              padding: '12px 30px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}>
-              Войти
-            </button>
-          </Link>
-        </div>
+        <Container className="py-5">
+          <h1 className="display-1 mb-4">
+            ☁️ Облако Fortes
+          </h1>
+          <p className="lead mb-4" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            Надежное пространство для ваших файлов
+          </p>
+          <p className="mb-5" style={{ opacity: 0.9 }}>
+            Сохраняйте в Облаке ценные файлы: фото, видео и документы.
+            Оно надёжно хранит их и делает доступными на любом вашем устройстве
+          </p>
+          <div>
+            <Link to="/register">
+              <Button variant="light" size="lg" className="me-3 fw-bold" style={{ color: '#667eea' }}>
+                Создать облако
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="outline-light" size="lg">
+                Войти
+              </Button>
+            </Link>
+          </div>
+        </Container>
       </div>
 
-      {/* Преимущества - шахматный порядок */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+      {/* Преимущества */}
+      <Container className="mb-5">
 
-        {/* Блок 1 - текст слева, иконка справа */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '60px',
-          marginBottom: '80px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px', color: '#333' }}>
-              🎁 Бесплатные 8 гигабайт — всегда ваши
+        {/* Блок 1 */}
+        <Row className="align-items-center mb-5 py-4">
+          <Col lg={6} className="mb-4 mb-lg-0">
+            <h2 className="display-6 mb-3">
+              🎁 Бесплатный 1 гигабайт — всегда ваш
             </h2>
-            <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.6' }}>
-              Память можно увеличить до 2 терабайт с подпиской,
+            <p className="lead text-muted">
+              Память можно увеличить до 100 гигабайт с подпиской,
               но бесплатное пространство у вас есть сразу после начала работы в Облаке
             </p>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '80px' }}>💾</div>
-          </div>
-        </div>
+          </Col>
+          <Col lg={6} className="text-center">
+            <div className="display-1">💾</div>
+          </Col>
+        </Row>
 
-        {/* Блок 2 - иконка слева, текст справа */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '60px',
-          marginBottom: '80px',
-          flexWrap: 'wrap',
-          flexDirection: 'row-reverse'
-        }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px', color: '#333' }}>
+        {/* Блок 2 */}
+        <Row className="align-items-center mb-5 py-4 flex-row-reverse">
+          <Col lg={6} className="mb-4 mb-lg-0">
+            <h2 className="display-6 mb-3">
               🔒 Безопасность превыше всего
             </h2>
-            <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.6' }}>
+            <p className="lead text-muted">
               Все файлы шифруются при передаче и хранении.
               Только вы имеете доступ к своим данным
             </p>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '80px' }}>🛡️</div>
-          </div>
-        </div>
+          </Col>
+          <Col lg={6} className="text-center">
+            <div className="display-1">🛡️</div>
+          </Col>
+        </Row>
 
-        {/* Блок 3 - текст слева, иконка справа */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '60px',
-          marginBottom: '80px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px', color: '#333' }}>
+        {/* Блок 3 */}
+        <Row className="align-items-center mb-5 py-4">
+          <Col lg={6} className="mb-4 mb-lg-0">
+            <h2 className="display-6 mb-3">
               📱 Доступ с любого устройства
             </h2>
-            <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.6' }}>
+            <p className="lead text-muted">
               Загружайте файлы с компьютера, телефона или планшета.
               Все ваши данные всегда под рукой
             </p>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '80px' }}>📱💻🖥️</div>
-          </div>
-        </div>
+          </Col>
+          <Col lg={6} className="text-center">
+            <div className="display-1">📱💻🖥️</div>
+          </Col>
+        </Row>
 
-        {/* Блок 4 - иконка слева, текст справа */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '60px',
-          marginBottom: '80px',
-          flexWrap: 'wrap',
-          flexDirection: 'row-reverse'
-        }}>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '20px', color: '#333' }}>
+        {/* Блок 4 */}
+        <Row className="align-items-center mb-5 py-4 flex-row-reverse">
+          <Col lg={6} className="mb-4 mb-lg-0">
+            <h2 className="display-6 mb-3">
               🔗 Удобные ссылки для обмена
             </h2>
-            <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.6' }}>
+            <p className="lead text-muted">
               Делитесь файлами с друзьями и коллегами по специальной ссылке.
               Управляйте доступом к вашим данным
             </p>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '80px' }}>🔗</div>
-          </div>
-        </div>
-      </div>
+          </Col>
+          <Col lg={6} className="text-center">
+            <div className="display-1">🔗</div>
+          </Col>
+        </Row>
+      </Container>
 
       {/* Призыв к действию */}
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 20px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '20px',
-        marginTop: '40px'
-      }}>
-        <h2 style={{ fontSize: '32px', marginBottom: '20px', color: '#333' }}>
-          Готовы начать?
-        </h2>
-        <p style={{ fontSize: '18px', color: '#666', marginBottom: '30px' }}>
-          Присоединяйтесь к тысячам пользователей Облака Fortes
-        </p>
-        <Link to="/register">
-          <button style={{
-            backgroundColor: '#667eea',
-            color: 'white',
-            border: 'none',
-            padding: '14px 40px',
-            fontSize: '18px',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            Создать облако бесплатно
-          </button>
-        </Link>
+      <div className="bg-light text-center py-5 mt-4 rounded-4">
+        <Container>
+          <h2 className="display-6 mb-3">
+            Готовы начать?
+          </h2>
+          <p className="lead text-muted mb-4">
+            Присоединяйтесь к тысячам пользователей Облака Fortes
+          </p>
+          <Link to="/register">
+            <Button variant="primary" size="lg" className="px-5 py-3" style={{ backgroundColor: '#667eea', borderColor: '#667eea' }}>
+              Создать облако бесплатно
+            </Button>
+          </Link>
+        </Container>
       </div>
-    </div>
+    </>
   );
 };

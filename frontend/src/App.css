@@ -1,184 +1,299 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ============================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================ */
 
-  &:hover {
-    border-color: var(--accent-border);
+/* Градиент для hero секции */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Кастомные цвета для кнопок */
+.btn-custom-primary {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.btn-custom-primary:hover {
+  background-color: #5a67d8;
+  border-color: #5a67d8;
+}
+
+/* Анимации */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Стили для карточек файлов */
+.file-card {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.file-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Drag & Drop зона */
+.drop-zone {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.drop-zone.dragging {
+  background-color: #f0f0ff;
+  border-color: #667eea !important;
+}
+
+/* Стили для навбара */
+.navbar-custom {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ============================================
+   КОМПОНЕНТ: FileManagerPage
+   ============================================ */
+
+.file-icon {
+  font-size: 2rem;
+}
+
+.file-actions .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   КОМПОНЕНТ: AdminPage
+   ============================================ */
+
+.users-table-container {
+  overflow-x: auto;
+}
+
+/* ============================================
+   АДАПТИВНОСТЬ
+   ============================================ */
+
+@media (max-width: 768px) {
+  .display-1 {
+    font-size: 3rem;
   }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+  
+  .display-6 {
+    font-size: 1.5rem;
   }
 }
 
-.hero {
-  position: relative;
 
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
+/* ============================================
+   КОМПОНЕНТ: FileManagerPage
+   ============================================ */
+
+/* Drop zone стили */
+.drop-zone {
+  border: 3px dashed #dee2e6;
+  border-radius: 1rem;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.drop-zone.dragging {
+  border-color: #0d6efd;
+  background-color: #e7f1ff;
+  transform: scale(0.99);
+}
+
+.drop-zone.uploading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Карточки файлов */
+.file-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Иконки файлов */
+.file-icon {
+  font-size: 2.5rem;
+  min-width: 3rem;
+  text-align: center;
+}
+
+/* Кнопки действий */
+.file-actions .btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Комментарий */
+.comment-text {
+  padding: 0.375rem 0;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s ease;
+}
+
+.comment-text:hover {
+  background-color: #f8f9fa;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .file-actions {
+    justify-content: flex-start;
   }
 
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
+  .comment-text {
+    margin-top: 0.5rem;
   }
 
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+  .file-icon {
+    font-size: 2rem;
   }
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
+/* Анимация для уведомления */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
+.alert-success {
+  animation: slideIn 0.3s ease-out;
+}
 
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
+
+/* ============================================
+   КОМПОНЕНТ: AdminPage
+   ============================================ */
+
+/* Таблица */
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+/* Ячейки таблицы */
+.table td, .table th {
+  vertical-align: middle;
+}
+
+/* Badge анимации */
+.badge {
+  transition: all 0.2s ease;
+}
+
+/* Кнопки действий */
+.btn-outline-warning:hover,
+.btn-outline-primary:hover,
+.btn-outline-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Анимация загрузки для строк */
+tr {
+  transition: opacity 0.2s ease;
+}
+
+/* Информационная карточка */
+.bg-light {
+  transition: all 0.3s ease;
+}
+
+.bg-light:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .table-responsive {
+    border-radius: 0.5rem;
   }
 
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
   }
 
-  @media (max-width: 1024px) {
+  td .d-flex {
     flex-direction: column;
-    text-align: center;
+    gap: 0.5rem !important;
+  }
+
+  td .d-flex .btn {
+    width: 100%;
   }
 }
 
-#docs {
-  border-right: 1px solid var(--border);
+/* ============================================
+   КОМПОНЕНТЫ: LoginForm, RegisterForm
+   ============================================ */
 
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+/* Карточка формы */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+.card:hover {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+/* Инпуты */
+.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.ticks {
-  position: relative;
-  width: 100%;
+/* Кнопки */
+.btn-primary {
+  transition: all 0.2s ease;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Алерты */
+.alert {
+  border-radius: 0.5rem;
+}
+
+/* Линки */
+a {
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline !important;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .card {
+    margin: 0 1rem;
   }
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+  .card-header h3 {
+    font-size: 1.5rem;
   }
 }

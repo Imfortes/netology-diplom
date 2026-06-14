@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 
 export const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -26,34 +27,76 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Вход в систему</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <input
-            type="text"
-            placeholder="Логин"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <input
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-          />
-        </div>
-        {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: '10px' }}>
-          {loading ? 'Вход...' : 'Войти'}
-        </button>
-      </form>
-    </div>
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col md={6} lg={5}>
+          <Card className="shadow-lg border-0">
+            <Card.Header className="bg-primary text-white text-center py-3 border-0">
+              <h3 className="mb-0">🔐 Вход в систему</h3>
+              <p className="mb-0 small opacity-75">Добро пожаловать обратно</p>
+            </Card.Header>
+
+            <Card.Body className="p-4">
+              {error && (
+                <Alert variant="danger" className="mb-4">
+                  <Alert.Heading className="fs-6">❌ Ошибка</Alert.Heading>
+                  <p className="mb-0">{error}</p>
+                </Alert>
+              )}
+
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-semibold">👤 Логин</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Введите ваш логин"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-semibold">🔒 Пароль</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Введите пароль"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </Form.Group>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-100 mb-3"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Вход...
+                    </>
+                  ) : (
+                    'Войти'
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <span className="text-muted">Нет аккаунта?</span>{' '}
+                  <Link to="/register" className="text-decoration-none">
+                    Зарегистрироваться
+                  </Link>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
