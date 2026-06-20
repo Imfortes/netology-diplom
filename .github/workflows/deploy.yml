@@ -1,0 +1,56 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+          
+          # Синхронизируем бэкенд
+          rsync -avz --delete --exclude='venv' --exclude='__pycache__' --exclude='*.pyc' --exclude='.env' \
+            backend/ $VPS_USER@$VPS_HOST:/home/$VPS_USER/www/netology-diplom/backend/
+          
+          # Синхронизируем фронтенд
+          rsync -avz --delete frontend/dist/ $VPS_USER@$VPS_HOST:/home/$VPS_USER/www/netology-diplom/frontend/dist/
+          
+          # Выполняем команды на сервере
+          ssh $VPS_USER@$VPS_HOST << 'ENDSSH'
+            cd /home/$USER/www/netology-diplom/backend
+            source venv/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate
+            python manage.py collectstatic --noinput
+            sudo systemctl restart diplom
+            sudo systemctl restart nginx
+          ENDSSH
