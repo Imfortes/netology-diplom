@@ -166,14 +166,18 @@ def upload_file(request):
 
     comment = request.data.get('comment', '')
 
+    # Используем storage_path пользователя
+    # Если storage_path = "user_storage/user_new", то берем имя папки = "user_new"
+    user_folder = user.storage_path.split('/')[-1] if user.storage_path else f"user_{user.id}"
+
     # Создаем директорию пользователя
-    user_dir = os.path.join(settings.MEDIA_ROOT, f"user_storage/user_{user.id}")
+    user_dir = os.path.join(settings.MEDIA_ROOT, "user_storage", user_folder)
     os.makedirs(user_dir, exist_ok=True)
 
     # Генерируем уникальное имя файла
     unique_name = f"{uuid.uuid4().hex}_{file_obj.name}"
     file_path = os.path.join(user_dir, unique_name)
-    relative_path = f"user_storage/user_{user.id}/{unique_name}"
+    relative_path = f"user_storage/{user_folder}/{unique_name}"
 
     # Сохраняем файл на диск
     with open(file_path, 'wb+') as destination:
