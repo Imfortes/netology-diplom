@@ -296,7 +296,6 @@ def download_file(request, file_id):
             return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
 
         # Обновляем дату последнего скачивания
-        from django.utils import timezone
         file_record.last_download_date = timezone.now()
         file_record.save()
 
@@ -304,8 +303,13 @@ def download_file(request, file_id):
         if not os.path.exists(file_path):
             return Response({'error': 'Файл не найден на диске'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Открываем файл
         response = FileResponse(open(file_path, 'rb'), content_type=file_record.mime_type)
+
+        # Принудительно скачиваем, а не показываем в браузере
         response['Content-Disposition'] = f'attachment; filename="{file_record.original_name}"'
+        response['Content-Length'] = file_record.size
+
         return response
     except File.DoesNotExist:
         return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
@@ -321,10 +325,12 @@ def generate_share_link(request, file_id):
         if not request.user.is_admin and file_record.user != request.user:
             return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
 
+        # Генерируем уникальную ссылку
         share_token = uuid.uuid4().hex[:16]
         file_record.share_link = share_token
         file_record.save()
 
+        # Формируем полный URL
         base_url = f"{request.scheme}://{request.get_host()}"
         share_url = f"{base_url}/api/share/{share_token}/"
 
@@ -344,7 +350,11 @@ def public_download(request, token):
             return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
 
         response = FileResponse(open(file_path, 'rb'), content_type=file_record.mime_type)
+
+        # Принудительно скачиваем
         response['Content-Disposition'] = f'attachment; filename="{file_record.original_name}"'
+        response['Content-Length'] = file_record.size
+
         return response
     except File.DoesNotExist:
         return Response({'error': 'Ссылка недействительна'}, status=status.HTTP_404_NOT_FOUND)
