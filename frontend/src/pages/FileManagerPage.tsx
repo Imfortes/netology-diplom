@@ -249,7 +249,7 @@ export const FileManagerPage: React.FC = () => {
   }
 
   const isStorageNearLimit = storageInfo && storageInfo.storage_percent > 80;
-  const isStorageFull = storageInfo && storageInfo.storage_percent >= 100;
+  const isStorageFull = storageInfo?.storage_percent ? storageInfo.storage_percent >= 100 : false;
 
   return (
     <Container className="py-4">
@@ -362,7 +362,7 @@ export const FileManagerPage: React.FC = () => {
           multiple
           onChange={onFileSelect}
           style={{ display: 'none' }}
-          disabled={isStorageFull}
+          disabled={isStorageFull || false}
         />
         <div className="text-center py-5">
           <div className="display-1 mb-3">
