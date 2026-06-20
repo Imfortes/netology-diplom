@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Используем относительный путь - браузер сам подставит текущий протокол и хост
 const API_BASE_URL = '/api';
 
 const apiClient = axios.create({

@@ -46,7 +46,6 @@ export const updateComment = async (fileId: number, comment: string): Promise<Fi
 
 export const generateShareLink = async (fileId: number): Promise<string> => {
   const response = await apiClient.post(`/files/${fileId}/share/`);
-  // Используем относительный путь
   return response.data.share_link;
 };
 

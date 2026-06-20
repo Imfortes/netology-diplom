@@ -325,7 +325,10 @@ def generate_share_link(request, file_id):
         file_record.share_link = share_token
         file_record.save()
 
-        return Response({'share_link': f"/api/share/{share_token}/"})
+        base_url = f"{request.scheme}://{request.get_host()}"
+        share_url = f"{base_url}/api/share/{share_token}/"
+
+        return Response({'share_link': share_url})
     except File.DoesNotExist:
         return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
 

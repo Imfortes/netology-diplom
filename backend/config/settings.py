@@ -270,20 +270,20 @@ if not os.path.exists(LOG_DIR):
 # SECURITY SETTINGS
 # ============================================
 
-# Настройки для продакшена
-if not DEBUG:
-    # Использовать безопасные куки только если есть HTTPS
-    SESSION_COOKIE_SECURE = False  # True если HTTPS
-    CSRF_COOKIE_SECURE = False     # True если HTTPS
-    SECURE_SSL_REDIRECT = False    # True если HTTPS
-    SECURE_PROXY_SSL_HEADER = None
+# Принудительно используем HTTP
+SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = None
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+USE_X_FORWARDED_HOST = False
+USE_X_FORWARDED_PORT = False
 
-    # HSTS (включать только с HTTPS)
-    SECURE_HSTS_SECONDS = 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_HSTS_PRELOAD = False
+# Безопасность
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
-    # Безопасность
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
+# HSTS отключен (нужен только для HTTPS)
+SECURE_HSTS_SECONDS = 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
