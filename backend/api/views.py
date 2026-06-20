@@ -343,21 +343,29 @@ def generate_share_link(request, file_id):
 def public_download(request, token):
     """Скачивание файла по публичной ссылке (без авторизации)"""
     try:
+        from api.models import File
+        import os
+        from django.conf import settings
+        from django.http import FileResponse
+
+        # Ищем файл по share_link
         file_record = File.objects.get(share_link=token)
 
+        # Проверяем существование файла на диске
         file_path = os.path.join(settings.MEDIA_ROOT, file_record.file_path)
         if not os.path.exists(file_path):
-            return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Файл не найден на диске'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Возвращаем файл
         response = FileResponse(open(file_path, 'rb'), content_type=file_record.mime_type)
-
-        # Принудительно скачиваем
         response['Content-Disposition'] = f'attachment; filename="{file_record.original_name}"'
         response['Content-Length'] = file_record.size
 
         return response
     except File.DoesNotExist:
-        return Response({'error': 'Ссылка недействительна'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Ссылка недействительна или файл удален'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['PUT'])
