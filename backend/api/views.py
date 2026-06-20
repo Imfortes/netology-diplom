@@ -294,6 +294,7 @@ def generate_share_link(request, file_id):
             return Response({'error': 'Доступ запрещен'}, status=status.HTTP_403_FORBIDDEN)
 
         # Генерируем уникальную ссылку
+        import uuid
         share_token = uuid.uuid4().hex[:16]
         file_record.share_link = share_token
         file_record.save()
@@ -305,6 +306,8 @@ def generate_share_link(request, file_id):
         return Response({'share_link': share_url})
     except File.DoesNotExist:
         return Response({'error': 'Файл не найден'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
