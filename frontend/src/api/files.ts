@@ -46,19 +46,12 @@ export const updateComment = async (fileId: number, comment: string): Promise<Fi
 
 export const generateShareLink = async (fileId: number): Promise<string> => {
   const response = await apiClient.post(`/files/${fileId}/share/`);
-  // Бэкенд возвращает { share_link: "/api/share/token/" }
-  const sharePath = response.data.share_link;
-
-  // Базовый URL бэкенда (без /api)
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-
-  // Формируем правильный полный URL
-  return `${backendUrl}${sharePath}`;
+  // Используем относительный путь
+  return response.data.share_link;
 };
 
 export const getDownloadUrl = (fileId: number): string => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-  return `${backendUrl}/api/files/${fileId}/download/`;
+  return `/api/files/${fileId}/download/`;
 };
 
 export const getStorageInfo = async (): Promise<any> => {

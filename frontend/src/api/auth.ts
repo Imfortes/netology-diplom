@@ -1,6 +1,5 @@
 import apiClient from './client';
 
-// Экспортируем интерфейс (это тип)
 export interface User {
   id: number;
   username: string;
@@ -10,6 +9,9 @@ export interface User {
   storage_path?: string;
   storage_limit?: number;
   storage_used?: number;
+  storage_limit_display?: string;
+  storage_used_display?: string;
+  storage_percent?: number;
 }
 
 export interface RegisterData {
@@ -54,16 +56,6 @@ export const deleteUser = async (userId: number): Promise<void> => {
 
 export const toggleAdmin = async (userId: number): Promise<void> => {
   await apiClient.post(`/users/${userId}/toggle-admin/`);
-};
-
-export const updateStorageLimit = async (userId: number, storageLimitGb: number): Promise<User> => {
-  const response = await apiClient.put(`/users/${userId}/storage-limit/`, { storage_limit_gb: storageLimitGb });
-  return response.data.user;
-};
-
-export const getStorageInfo = async (): Promise<any> => {
-  const response = await apiClient.get('/storage/info/');
-  return response.data;
 };
 
 export const getStorageInfoForUser = async (userId: number): Promise<any> => {
