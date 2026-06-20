@@ -42,6 +42,7 @@ export const useAdminUsers = () => {
         })
       );
 
+      console.log('.')
       console.log('🎉 Финальные данные:', usersWithStorage);
       setUsers(usersWithStorage);
     } catch (error: any) {
