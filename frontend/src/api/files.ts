@@ -46,7 +46,8 @@ export const updateComment = async (fileId: number, comment: string): Promise<Fi
 
 export const generateShareLink = async (fileId: number): Promise<string> => {
   const response = await apiClient.post(`/files/${fileId}/share/`);
-  // Бэкенд возвращает share_link с полным URL
+  console.log('📥 Ответ от generateShareLink:', response.data);
+  // Возвращаем share_link из ответа
   return response.data.share_link;
 };
 

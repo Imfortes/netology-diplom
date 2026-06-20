@@ -201,11 +201,18 @@ export const FileManagerPage: React.FC = () => {
 // Генерация ссылки для публичного доступа
 const handleShare = async (fileId: number) => {
   try {
-    // Сначала проверяем, есть ли уже ссылка у файла
+    console.log('🔗 Начинаем создание ссылки для файла ID:', fileId);
+
+    // Проверяем, есть ли уже ссылка у файла в списке
     const file = files.find(f => f.id === fileId);
-    if (file?.share_url) {
+    console.log('📄 Информация о файле:', file);
+
+    let shareUrl = file?.share_url;
+
+    if (shareUrl) {
       // Если ссылка уже есть - используем её
-      const fullUrl = `${window.location.origin}${file.share_url}`;
+      console.log('✅ Найдена существующая ссылка:', shareUrl);
+      const fullUrl = shareUrl.startsWith('http') ? shareUrl : `${window.location.origin}${shareUrl}`;
       await navigator.clipboard.writeText(fullUrl);
       setCopiedLink(fullUrl);
       setShowShareAlert(true);
@@ -215,14 +222,33 @@ const handleShare = async (fileId: number) => {
     }
 
     // Если ссылки нет - генерируем новую
-    const fullUrl = await generateShareLink(fileId);
+    console.log('🔄 Генерируем новую ссылку...');
+    const response = await generateShareLink(fileId);
+    console.log('📥 Ответ от сервера:', response);
+
+    // Проверяем что ответ пришел
+    if (!response) {
+      throw new Error('Сервер не вернул ссылку');
+    }
+
+    // Формируем полный URL
+    const fullUrl = response.startsWith('http') ? response : `${window.location.origin}${response}`;
+    console.log('✅ Готовая ссылка:', fullUrl);
+
+    // Копируем в буфер обмена
     await navigator.clipboard.writeText(fullUrl);
     setCopiedLink(fullUrl);
     setShowShareAlert(true);
     setTimeout(() => setShowShareAlert(false), 3000);
     alert(`Ссылка скопирована!\n${fullUrl}`);
+
+    // Обновляем список файлов, чтобы сохранить ссылку
+    await loadFiles();
+
   } catch (err: any) {
-    setError(err.response?.data?.error || 'Ошибка создания ссылки');
+    console.error('❌ Ошибка при создании ссылки:', err);
+    const errorMessage = err.response?.data?.error || err.message || 'Ошибка создания ссылки';
+    setError(errorMessage);
   }
 };
 
