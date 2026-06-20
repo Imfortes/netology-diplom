@@ -198,18 +198,33 @@ export const FileManagerPage: React.FC = () => {
     }
   };
 
-  // Генерация ссылки для публичного доступа
-  const handleShare = async (fileId: number) => {
-    try {
-      const fullUrl = await generateShareLink(fileId);
+// Генерация ссылки для публичного доступа
+const handleShare = async (fileId: number) => {
+  try {
+    // Сначала проверяем, есть ли уже ссылка у файла
+    const file = files.find(f => f.id === fileId);
+    if (file?.share_url) {
+      // Если ссылка уже есть - используем её
+      const fullUrl = `${window.location.origin}${file.share_url}`;
       await navigator.clipboard.writeText(fullUrl);
       setCopiedLink(fullUrl);
       setShowShareAlert(true);
       setTimeout(() => setShowShareAlert(false), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Ошибка создания ссылки');
+      alert(`Ссылка скопирована!\n${fullUrl}`);
+      return;
     }
-  };
+
+    // Если ссылки нет - генерируем новую
+    const fullUrl = await generateShareLink(fileId);
+    await navigator.clipboard.writeText(fullUrl);
+    setCopiedLink(fullUrl);
+    setShowShareAlert(true);
+    setTimeout(() => setShowShareAlert(false), 3000);
+    alert(`Ссылка скопирована!\n${fullUrl}`);
+  } catch (err: any) {
+    setError(err.response?.data?.error || 'Ошибка создания ссылки');
+  }
+};
 
   // Форматирование даты
   const formatDate = (dateString: string) => {
