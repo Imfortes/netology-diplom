@@ -299,8 +299,9 @@ def generate_share_link(request, file_id):
         file_record.share_link = share_token
         file_record.save()
 
-        # Формируем полный URL
-        base_url = f"{request.scheme}://{request.get_host()}"
+        # Формируем полный URL с портом 8080
+        # Используем HTTP и порт 8080
+        base_url = f"http://95.163.228.142:8080"
         share_url = f"{base_url}/api/share/{share_token}/"
 
         return Response({'share_link': share_url})
