@@ -208,42 +208,56 @@ const handleShare = async (fileId: number) => {
     console.log('📄 Информация о файле:', file);
 
     let shareUrl = file?.share_url;
+    let fullUrl = '';
 
     if (shareUrl) {
       // Если ссылка уже есть - используем её
       console.log('✅ Найдена существующая ссылка:', shareUrl);
-      const fullUrl = shareUrl.startsWith('http') ? shareUrl : `${window.location.origin}${shareUrl}`;
-      await navigator.clipboard.writeText(fullUrl);
+      fullUrl = shareUrl.startsWith('http') ? shareUrl : `${window.location.origin}${shareUrl}`;
+    } else {
+      // Если ссылки нет - генерируем новую
+      console.log('🔄 Генерируем новую ссылку...');
+      const response = await generateShareLink(fileId);
+      console.log('📥 Ответ от сервера:', response);
+
+      if (!response) {
+        throw new Error('Сервер не вернул ссылку');
+      }
+
+      fullUrl = response.startsWith('http') ? response : `${window.location.origin}${response}`;
+      console.log('✅ Готовая ссылка:', fullUrl);
+
+      // Обновляем список файлов, чтобы сохранить ссылку
+      await loadFiles();
+    }
+
+    // Копируем в буфер обмена с fallback
+    try {
+      // Пробуем использовать Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(fullUrl);
+      } else {
+        // Fallback для HTTP
+        const textarea = document.createElement('textarea');
+        textarea.value = fullUrl;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
       setCopiedLink(fullUrl);
       setShowShareAlert(true);
       setTimeout(() => setShowShareAlert(false), 3000);
       alert(`Ссылка скопирована!\n${fullUrl}`);
-      return;
+
+    } catch (copyErr) {
+      console.error('Ошибка копирования:', copyErr);
+      // Если не удалось скопировать - просто показываем ссылку
+      alert(`Ссылка: ${fullUrl}\nСкопируйте её вручную`);
     }
-
-    // Если ссылки нет - генерируем новую
-    console.log('🔄 Генерируем новую ссылку...');
-    const response = await generateShareLink(fileId);
-    console.log('📥 Ответ от сервера:', response);
-
-    // Проверяем что ответ пришел
-    if (!response) {
-      throw new Error('Сервер не вернул ссылку');
-    }
-
-    // Формируем полный URL
-    const fullUrl = response.startsWith('http') ? response : `${window.location.origin}${response}`;
-    console.log('✅ Готовая ссылка:', fullUrl);
-
-    // Копируем в буфер обмена
-    await navigator.clipboard.writeText(fullUrl);
-    setCopiedLink(fullUrl);
-    setShowShareAlert(true);
-    setTimeout(() => setShowShareAlert(false), 3000);
-    alert(`Ссылка скопирована!\n${fullUrl}`);
-
-    // Обновляем список файлов, чтобы сохранить ссылку
-    await loadFiles();
 
   } catch (err: any) {
     console.error('❌ Ошибка при создании ссылки:', err);
