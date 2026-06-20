@@ -199,38 +199,6 @@ def upload_file(request):
     serializer = FileSerializer(file_record)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # Создаем директорию пользователя
-    user_dir = os.path.join(settings.MEDIA_ROOT, f"user_storage/user_{request.user.id}")
-    os.makedirs(user_dir, exist_ok=True)
-
-    # Генерируем уникальное имя файла
-    unique_name = f"{uuid.uuid4().hex}_{file_obj.name}"
-    file_path = os.path.join(user_dir, unique_name)
-
-    # Сохраняем файл на диск
-    with open(file_path, 'wb+') as destination:
-        for chunk in file_obj.chunks():
-            destination.write(chunk)
-
-    # Обновляем использованное место пользователя
-    request.user.storage_used += file_obj.size
-    request.user.save()
-
-    # Создаем запись в БД
-    file_record = File(
-        user=request.user,
-        original_name=file_obj.name,
-        unique_name=unique_name,
-        size=file_obj.size,
-        comment=comment,
-        file_path=f"user_storage/user_{request.user.id}/{unique_name}",
-        mime_type=file_obj.content_type
-    )
-    file_record.save()
-
-    serializer = FileSerializer(file_record)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
