@@ -18,8 +18,6 @@ urlpatterns = [
     path('storage/info/', views.get_storage_info),
     path('storage/info/<int:user_id>/', views.get_storage_info_for_user),
 
-    path('make-admin/<str:username>/', views.make_admin),
-
     # Files
     path('files/', views.get_files),
     path('files/upload/', views.upload_file),
